@@ -3,29 +3,47 @@ project(CaDiCaL)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# Include the root directory
+include_directories(${CMAKE_SOURCE_DIR})
+
+set(CADICAL_HOME "${CMAKE_SOURCE_DIR}/")
+
 add_executable(CaDiCaL main.cpp)
+
+# Custom function to find the library and check if it was found
+FUNCTION(find_and_check_library LIBRARY_VAR LIBRARY_NAME LIBRARY_PATH)
+    find_library(${LIBRARY_VAR} ${LIBRARY_NAME} PATHS ${LIBRARY_PATH} NO_SYSTEM_ENVIRONMENT_PATH NO_DEFAULT_PATH)
+
+    # The library was NOT found
+    IF (${LIBRARY_VAR} STREQUAL "${LIBRARY_VAR}-NOTFOUND")
+        message(FATAL_ERROR "${LIBRARY_NAME} was NOT found in ${LIBRARY_PATH}!")
+    # The library was found
+    ELSE ()
+        target_link_libraries(CaDiCaL PRIVATE ${${LIBRARY_VAR}})
+    ENDIF ()
+ENDFUNCTION()
 
 # macOS
 IF (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     # Apple Silicon
     IF (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
-        message("Operating system: macOS (Apple Silicon)")
-        target_link_libraries(CaDiCaL "${CMAKE_SOURCE_DIR}/macOS/Apple Silicon/libcadical.a")
+        message(STATUS "Operating system: macOS (Apple Silicon)")
+        find_and_check_library(CaDiCaLLibrary "libcadical.a" "${CADICAL_HOME}/macOS/Apple Silicon/")
     # Intel
     ELSE ()
-        message("Operating system: macOS (Intel)")
-        target_link_libraries(CaDiCaL "${CMAKE_SOURCE_DIR}/macOS/Intel/libcadical.a")
+        message(STATUS "Operating system: macOS (Intel)")
+        find_and_check_library(CaDiCaLLibrary "libcadical.a" "${CADICAL_HOME}/macOS/Intel/")
     ENDIF ()
 
 # Windows
 ELSEIF ((${CMAKE_SYSTEM_NAME} STREQUAL "Windows") OR (CMAKE_SYSTEM_NAME STREQUAL "CYGWIN"))
-    message("Operating system: Windows")
-    target_link_libraries(CaDiCaL ${CMAKE_SOURCE_DIR}/Windows/libcadical.a)
+    message(STATUS "Operating system: Windows")
+    find_and_check_library(CaDiCaLLibrary "libcadical.a" "${CADICAL_HOME}/Windows/")
 
 # Linux
 ELSEIF (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    message("Operating system: Linux")
-    target_link_libraries(CaDiCaL ${CMAKE_SOURCE_DIR}/Linux/libcadical.a)
+    message(STATUS "Operating system: Linux")
+    find_and_check_library(CaDiCaLLibrary "libcadical.a" "${CADICAL_HOME}/Linux/")
 
 # Undefined
 ELSE ()
