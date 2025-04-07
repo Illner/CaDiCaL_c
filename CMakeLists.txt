@@ -6,9 +6,23 @@ set(CMAKE_CXX_STANDARD 20)
 # Include the root directory
 include_directories(${CMAKE_SOURCE_DIR})
 
-set(CADICAL_HOME "${CMAKE_SOURCE_DIR}/")
+add_compile_definitions(NBUILD)
 
-add_executable(CaDiCaL main.cpp)
+include(CheckFunctionExists)
+check_function_exists(closefrom HAVE_CLOSEFROM)
+
+# Define macro if not available
+IF (NOT HAVE_CLOSEFROM)
+    add_compile_definitions(NCLOSEFROM)
+ENDIF ()
+
+# Collect all .cpp files from the CaDiCaL source directory
+file(GLOB CADICAL_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/CaDiCaL/src/*.cpp")
+
+# Add the executable
+add_executable(CaDiCaL main.cpp ${CADICAL_SRC_FILES})
+
+# set(CADICAL_HOME "${CMAKE_SOURCE_DIR}/")
 
 # Custom function to find the library and check if it was found
 FUNCTION(find_and_check_library LIBRARY_VAR LIBRARY_NAME LIBRARY_PATH)
@@ -23,6 +37,7 @@ FUNCTION(find_and_check_library LIBRARY_VAR LIBRARY_NAME LIBRARY_PATH)
     ENDIF ()
 ENDFUNCTION()
 
+#[===[
 # macOS
 IF (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     # Apple Silicon
@@ -49,3 +64,4 @@ ELSEIF (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 ELSE ()
     message(FATAL_ERROR "Your operating system (" ${CMAKE_SYSTEM_NAME} ") is not supported!")
 ENDIF ()
+]===]

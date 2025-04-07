@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "cadical.hpp"
+// #include "cadical.hpp"
+#include "CaDiCaL/src/cadical.hpp"
 
 int main(int argc, char *argv[]) {
   std::cout << "CaDiCaL" << std::endl;
