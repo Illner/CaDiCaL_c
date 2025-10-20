@@ -1,0 +1,3 @@
+[submodule "CaDiCaL"]
+	path = CaDiCaL
+	url = https://github.com/Illner/CaDiCaL.git
