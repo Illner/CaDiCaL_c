@@ -1080,7 +1080,8 @@ public:
 
   void catch_signal (int); // Implement 'Handler'.
 
-  int main (int, char **);
+  // REMOVED
+  // int main (int, char **);
 };
 
 /*------------------------------------------------------------------------*/
@@ -5189,6 +5190,7 @@ int Mobical::main (int argc, char **argv) {
 } // namespace CaDiCaL
 /*------------------------------------------------------------------------*/
 
+// REMOVED
 /*
 int main (int argc, char **argv) {
 #ifdef MOBICAL_MEMORY
