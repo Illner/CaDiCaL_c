@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
   std::cout << std::endl;
 
   // Add an assumption and check again
-  solver.assume(x2); // Assume x2 is true
+  solver.push_assumption(x2); // Assume x2 is true
 
   res = solver.solve();
   if (res == 10) {
@@ -117,7 +117,8 @@ int main(int argc, char *argv[]) {
 
   printVsidsScores(solver, scoreVector, numVars);
 
-  solver.assume(-x2); // Assume x2 is false
+  solver.pop_assumption(x2);
+  solver.push_assumption(-x2); // Assume x2 is false
 
   res = solver.solve();
   if (res == 10) {
@@ -129,6 +130,8 @@ int main(int argc, char *argv[]) {
   }
 
   printVsidsScores(solver, scoreVector, numVars);
+
+  solver.pop_assumption(-x2);
 
   return 0;
 }
