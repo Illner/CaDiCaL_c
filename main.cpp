@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -67,19 +68,62 @@ int main(int argc, char *argv[]) {
   CaDiCaL::Solver solver;
 
   // Add variables and clauses
-  int x1 = 1, x2 = 2, x3 = 3, x4 = 4, x5 = 5;
+  int zeroLit = 0;
+  int litPos1 = 1, litPos2 = 2, litPos3 = 3, litPos4 = 4, litPos5 = 5,
+      litPos6 = 6, litPos7 = 7, litPos8 = 8, litPos9 = 9, litPos10 = 10;
+  int litNeg1 = -1, litNeg2 = -2, litNeg3 = -3, litNeg4 = -4, litNeg5 = -5,
+      litNeg6 = -6, litNeg7 = -7, litNeg8 = -8, litNeg9 = -9, litNeg10 = -10;
 
-  int numVars = 50;
-  int numClauses = 500;
+  solver.add(litPos1); solver.add(zeroLit);            // 0
+  solver.add(litNeg3); solver.add(zeroLit);            // 1
+  solver.add(litNeg1); solver.add(litPos2); solver.add(zeroLit);   // 2
+  solver.add(litPos3); solver.add(litNeg4); solver.add(zeroLit);   // 3
 
-  CNFGenerator generator(numVars, numClauses, solver);
-  generator.generate();
+  solver.add(litPos5); solver.add(litPos7); solver.add(zeroLit);           // 4
+  solver.add(litNeg7); solver.add(litNeg9); solver.add(zeroLit);           // 5
+  solver.add(litNeg6); solver.add(litNeg7); solver.add(litPos8); solver.add(zeroLit);   // 6
 
-  std::vector<double> scoreVector(numVars + 1, 0);
+  std::vector<std::vector<int>> assumptionsVector { {}, { litNeg2 }, { litNeg5 }, { litPos6 }, { litNeg5, litPos6 }, { litPos1, litPos2, litNeg3, litNeg4, litNeg5 }, { litPos1, litPos2, litNeg3, litNeg4, litPos6 }, { litPos1, litPos2, litNeg3, litNeg4, litNeg5, litPos6 } };
 
-  printVsidsScores(solver, scoreVector, numVars);
+  for (const std::vector<int>& assumptions : assumptionsVector) {
+    std::cout << "Assumptions:";
+    for (int lit : assumptions) {
+      std::cout << " " << std::to_string(lit);
 
-  // Check satisfiability
+      solver.push_assumption(lit);
+    }
+    std::cout << std::endl;
+
+    int prop_res = solver.propagate();
+    if (prop_res == 20) {
+      std::cout << "Conflict" << std::endl;
+    } else if (prop_res == 0) {
+      std::vector<int> implicants;
+      solver.get_entrailed_literals(implicants);
+      std::sort(implicants.begin(), implicants.end());
+
+      std::cout << "Implied literals:";
+      for (int lit : implicants)
+        std::cout << " " << std::to_string(lit);
+      std::cout << std::endl;
+    } else {
+      std::cout << "Full assignment:";
+      for (int var = 1; var <= solver.vars(); ++var)
+        std::cout << " " << std::to_string(solver.val(var));
+      std::cout << std::endl;
+    }
+
+    for (int assumption : std::ranges::reverse_view(assumptions))
+    {
+      solver.pop_assumption(assumption);
+    }
+
+    std::cout << std::endl;
+    std::cout << "---------------------------";
+    std::cout << std::endl;
+  }
+
+  /*
   int res = solver.solve();
   if (res == 10) {
     std::cout << "SAT\n";
@@ -88,50 +132,7 @@ int main(int argc, char *argv[]) {
   } else {
     std::cout << "UNKNOWN\n";
   }
-
-  printVsidsScores(solver, scoreVector, numVars);
-
-  // Perform unit propagation
-  int prop_res = solver.propagate();
-  if (prop_res == 10) {
-    std::cout << "Propagation completed. Model values:\n";
-    std::cout << "x1 = " << solver.val(x1) << "\n";
-    std::cout << "x2 = " << solver.val(x2) << "\n";
-    std::cout << "x3 = " << solver.val(x3) << "\n";
-  } else {
-    std::cout << "Unit propagation failed.\n";
-  }
-  std::cout << std::endl;
-
-  // Add an assumption and check again
-  solver.push_assumption(x2); // Assume x2 is true
-
-  res = solver.solve();
-  if (res == 10) {
-    std::cout << "SAT under assumption x2\n";
-  } else if (res == 20) {
-    std::cout << "UNSAT under assumption x2\n";
-  } else {
-    std::cout << "UNKNOWN under assumption x2\n";
-  }
-
-  printVsidsScores(solver, scoreVector, numVars);
-
-  solver.pop_assumption(x2);
-  solver.push_assumption(-x2); // Assume x2 is false
-
-  res = solver.solve();
-  if (res == 10) {
-    std::cout << "SAT under assumption -x2\n";
-  } else if (res == 20) {
-    std::cout << "UNSAT under assumption -x2\n";
-  } else {
-    std::cout << "UNKNOWN under assumption -x2\n";
-  }
-
-  printVsidsScores(solver, scoreVector, numVars);
-
-  solver.pop_assumption(-x2);
+   */
 
   return 0;
 }
