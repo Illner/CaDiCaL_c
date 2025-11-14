@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
@@ -74,18 +75,39 @@ int main(int argc, char *argv[]) {
   int litNeg1 = -1, litNeg2 = -2, litNeg3 = -3, litNeg4 = -4, litNeg5 = -5,
       litNeg6 = -6, litNeg7 = -7, litNeg8 = -8, litNeg9 = -9, litNeg10 = -10;
 
-  solver.add(litPos1); solver.add(zeroLit);            // 0
-  solver.add(litNeg3); solver.add(zeroLit);            // 1
-  solver.add(litNeg1); solver.add(litPos2); solver.add(zeroLit);   // 2
-  solver.add(litPos3); solver.add(litNeg4); solver.add(zeroLit);   // 3
+  solver.add(litPos1);
+  solver.add(zeroLit); // 0
+  solver.add(litNeg3);
+  solver.add(zeroLit); // 1
+  solver.add(litNeg1);
+  solver.add(litPos2);
+  solver.add(zeroLit); // 2
+  solver.add(litPos3);
+  solver.add(litNeg4);
+  solver.add(zeroLit); // 3
 
-  solver.add(litPos5); solver.add(litPos7); solver.add(zeroLit);           // 4
-  solver.add(litNeg7); solver.add(litNeg9); solver.add(zeroLit);           // 5
-  solver.add(litNeg6); solver.add(litNeg7); solver.add(litPos8); solver.add(zeroLit);   // 6
+  solver.add(litPos5);
+  solver.add(litPos7);
+  solver.add(zeroLit); // 4
+  solver.add(litNeg7);
+  solver.add(litNeg9);
+  solver.add(zeroLit); // 5
+  solver.add(litNeg6);
+  solver.add(litNeg7);
+  solver.add(litPos8);
+  solver.add(zeroLit); // 6
 
-  std::vector<std::vector<int>> assumptionsVector { {}, { litNeg2 }, { litNeg5 }, { litPos6 }, { litNeg5, litPos6 }, { litPos1, litPos2, litNeg3, litNeg4, litNeg5 }, { litPos1, litPos2, litNeg3, litNeg4, litPos6 }, { litPos1, litPos2, litNeg3, litNeg4, litNeg5, litPos6 } };
+  std::vector<std::vector<int>> assumptionsVector{
+      {},
+      {litNeg2},
+      {litNeg5},
+      {litPos6},
+      {litNeg5, litPos6},
+      {litPos1, litPos2, litNeg3, litNeg4, litNeg5},
+      {litPos1, litPos2, litNeg3, litNeg4, litPos6},
+      {litPos1, litPos2, litNeg3, litNeg4, litNeg5, litPos6}};
 
-  for (const std::vector<int>& assumptions : assumptionsVector) {
+  for (const std::vector<int> &assumptions : assumptionsVector) {
     std::cout << "Assumptions:";
     for (int lit : assumptions) {
       std::cout << " " << std::to_string(lit);
@@ -113,8 +135,7 @@ int main(int argc, char *argv[]) {
       std::cout << std::endl;
     }
 
-    for (int assumption : std::ranges::reverse_view(assumptions))
-    {
+    for (int assumption : std::ranges::reverse_view(assumptions)) {
       solver.pop_assumption(assumption);
     }
 
